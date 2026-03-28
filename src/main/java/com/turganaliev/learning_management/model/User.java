@@ -13,13 +13,17 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Column(unique = true, nullable = false)
+    private String username;
+
     private String firstName;
     private String lastName;
 
     @Column(unique = true, nullable = false)
     private String email;
 
-    private String password;
+    @Column(nullable = false)
+    private String passwordHash;
 
     @Enumerated(EnumType.STRING)
     private Role role;
