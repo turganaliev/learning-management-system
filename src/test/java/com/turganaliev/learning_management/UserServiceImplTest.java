@@ -1,6 +1,8 @@
 package com.turganaliev.learning_management;
 
 import com.turganaliev.learning_management.dto.UserLoginDto;
+import com.turganaliev.learning_management.dto.UserRegistrationDto;
+import com.turganaliev.learning_management.model.Role;
 import com.turganaliev.learning_management.model.User;
 import com.turganaliev.learning_management.repository.UserRepository;
 import com.turganaliev.learning_management.service.UserServiceImpl;
@@ -59,5 +61,36 @@ public class UserServiceImplTest {
         when(passwordEncoder.matches("wrongpassword", "hashedPassword")).thenReturn(false);
 
         assertThrows(RuntimeException.class, () -> {userService.loginUser(loginDto);});
+    }
+
+    @Test
+    void registerUser_Success() {
+        UserRegistrationDto dto = new UserRegistrationDto();
+        dto.setUsername("john123");
+        dto.setEmail("john@gmail.com");
+        dto.setPassword("password123");
+        dto.setFirstName("John");
+        dto.setLastName("Doe");
+
+        when(userRepository.findByUsername("john123")).thenReturn(Optional.empty());
+        when(passwordEncoder.encode("password123")).thenReturn("hashedPassword");
+        when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
+
+        User result = userService.registerUser(dto);
+
+        assertNotNull(result);
+        assertEquals("john123", result.getUsername());
+        assertEquals("hashedPassword", result.getPasswordHash());
+        assertEquals(Role.STUDENT, result.getRole());
+    }
+
+    @Test
+    void registerUser_UsernameAlreadyExists() {
+        UserRegistrationDto dto = new UserRegistrationDto();
+        dto.setUsername("john123");
+
+        when(userRepository.findByUsername("john123")).thenReturn(Optional.of(new User()));
+
+        assertThrows(RuntimeException.class, () -> {userService.registerUser(dto);});
     }
 }
