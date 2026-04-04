@@ -93,4 +93,30 @@ public class UserServiceImplTest {
 
         assertThrows(RuntimeException.class, () -> {userService.registerUser(dto);});
     }
+
+    @Test
+    void findByUsername_Success() {
+        UserRegistrationDto dto = new UserRegistrationDto();
+        dto.setUsername("andy123");
+
+        User fakeUser = new User();
+        fakeUser.setUsername("andy123");
+
+        when(userRepository.findByUsername("andy123")).thenReturn(Optional.of(fakeUser));
+
+        User result = userService.findByUsername(dto.getUsername());
+
+        assertNotNull(result);
+        assertEquals("andy123", result.getUsername());
+    }
+
+    @Test
+    void findByUsername_UsernameNotFound() {
+        UserRegistrationDto dto = new UserRegistrationDto();
+        dto.setUsername("andy123");
+
+        when(userRepository.findByUsername("andy123")).thenThrow(new RuntimeException("User not found!"));
+
+        assertThrows(RuntimeException.class, () -> {userService.findByUsername(dto.getUsername());});
+    }
 }
