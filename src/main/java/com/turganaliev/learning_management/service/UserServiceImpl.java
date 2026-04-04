@@ -1,5 +1,6 @@
 package com.turganaliev.learning_management.service;
 
+import com.turganaliev.learning_management.dto.UserLoginDto;
 import com.turganaliev.learning_management.dto.UserRegistrationDto;
 import com.turganaliev.learning_management.model.Role;
 import com.turganaliev.learning_management.model.User;
@@ -34,5 +35,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found!"));
+    }
+
+    @Override
+    public User loginUser(UserLoginDto loginData) {
+        User user = userRepository.findByUsername(loginData.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found!"));
+
+        if (!passwordEncoder.matches(loginData.getPassword(), user.getPasswordHash())) {
+            throw new RuntimeException("Invalid password!");
+        }
+
+        return user;
     }
 }
