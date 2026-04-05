@@ -53,6 +53,10 @@ public class AuthControllerTest {
     void register_UsernameAlreadyExists() throws Exception {
         UserRegistrationDto dto = new UserRegistrationDto();
         dto.setUsername("john123");
+        dto.setEmail("john@gmail.com");
+        dto.setPassword("password123");
+        dto.setFirstName("John");
+        dto.setLastName("Doe");
 
         when(userService.registerUser(any()))
                 .thenThrow(new RuntimeException("Username already exists!"));
