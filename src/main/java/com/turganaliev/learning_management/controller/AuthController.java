@@ -4,6 +4,7 @@ import com.turganaliev.learning_management.dto.UserLoginDto;
 import com.turganaliev.learning_management.dto.UserRegistrationDto;
 import com.turganaliev.learning_management.model.User;
 import com.turganaliev.learning_management.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +19,7 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserRegistrationDto userData) {
+    public ResponseEntity<?> register(@Valid @RequestBody UserRegistrationDto userData) {
         try {
             User newUser = userService.registerUser(userData);
             return ResponseEntity.ok(newUser);
@@ -28,8 +29,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody UserLoginDto loginData) {
-        User user = userService.loginUser(loginData);
-        return ResponseEntity.ok(user);
+    public ResponseEntity<?> login(@Valid @RequestBody UserLoginDto loginData) {
+        try {
+            User user = userService.loginUser(loginData);
+            return ResponseEntity.ok(user);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(401).body(e.getMessage());
+        }
     }
 }
