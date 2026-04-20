@@ -8,6 +8,7 @@ function App() {
     email: '',
     password: ''
   });
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,8 +23,11 @@ function App() {
         body: JSON.stringify(formData)
       });
       const data = await response.json();
-      console.log('Registered:', data);
-      alert('Registration successful!');
+      if (response.ok) {
+        alert('Registration successful!');
+      } else {
+        setErrors(data);
+      }
     } catch (error) {
       console.error('Error:', error);
       alert('Registration failed!');
@@ -41,6 +45,9 @@ function App() {
         <input name="password" type="password" placeholder="Password" onChange={handleChange} /><br/>
         <button type="submit">Register</button>
       </form>
+      {Object.entries(errors).map(([field, message]) => (
+          <p key={field} style={{color: 'red'}}>{field}: {message}</p>
+      ))}
     </div>
   );
 }
