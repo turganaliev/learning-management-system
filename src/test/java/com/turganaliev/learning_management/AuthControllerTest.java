@@ -66,4 +66,19 @@ public class AuthControllerTest {
                         .content(objectMapper.writeValueAsString(dto)))
                         .andExpect(status().isConflict());
     }
+
+    @Test
+    void register_Failed() throws Exception {
+        UserRegistrationDto dto = new UserRegistrationDto();
+        dto.setUsername("");
+        dto.setEmail("");
+        dto.setPassword("");
+        dto.setFirstName("");
+        dto.setLastName("");
+
+        mockMvc.perform(post("/api/users/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest());
+    }
 }
