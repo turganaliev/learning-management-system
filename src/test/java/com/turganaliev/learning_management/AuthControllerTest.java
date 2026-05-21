@@ -1,6 +1,7 @@
 package com.turganaliev.learning_management;
 
 import com.turganaliev.learning_management.dto.UserRegistrationDto;
+import com.turganaliev.learning_management.exception.UserNameAlreadyExistsException;
 import com.turganaliev.learning_management.model.User;
 import com.turganaliev.learning_management.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -59,7 +60,7 @@ public class AuthControllerTest {
         dto.setLastName("Doe");
 
         when(userService.registerUser(any()))
-                .thenThrow(new RuntimeException("Username already exists!"));
+                .thenThrow(new UserNameAlreadyExistsException("Username already exists!"));
 
         mockMvc.perform(post("/api/users/register")
                         .contentType(MediaType.APPLICATION_JSON)

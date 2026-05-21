@@ -2,6 +2,9 @@ package com.turganaliev.learning_management.service;
 
 import com.turganaliev.learning_management.dto.UserLoginDto;
 import com.turganaliev.learning_management.dto.UserRegistrationDto;
+import com.turganaliev.learning_management.exception.InvalidPasswordException;
+import com.turganaliev.learning_management.exception.UserNameAlreadyExistsException;
+import com.turganaliev.learning_management.exception.UserNotFoundException;
 import com.turganaliev.learning_management.model.Role;
 import com.turganaliev.learning_management.model.User;
 import com.turganaliev.learning_management.repository.UserRepository;
@@ -19,7 +22,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User registerUser(UserRegistrationDto userData) {
         if (userRepository.findByUsername(userData.getUsername()).isPresent()) {
-            throw new RuntimeException("Username already exists!");
+            throw new UserNameAlreadyExistsException("Username already exists!");
         }
 
         User user = new User();
@@ -34,16 +37,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found!"));
+        return userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found!"));
     }
 
     @Override
     public User loginUser(UserLoginDto loginData) {
         User user = userRepository.findByUsername(loginData.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found!"));
+                .orElseThrow(() -> new UserNotFoundException("User not found!"));
 
         if (!passwordEncoder.matches(loginData.getPassword(), user.getPasswordHash())) {
-            throw new RuntimeException("Invalid password!");
+            throw new InvalidPasswordException("Invalid password!");
         }
 
         return user;
