@@ -28,7 +28,7 @@ class AiServiceTest {
     private AiService aiService;
 
     @Test
-    void explainText_Success() {
+    void explainWithHistory_Success() {
         Map<String, Object> fakeGeminiResponse = Map.of(
                 "candidates", List.of(
                         Map.of("content", Map.of(
@@ -42,17 +42,17 @@ class AiServiceTest {
         when(restTemplate.postForEntity(anyString(), any(HttpEntity.class), eq(Map.class)))
                 .thenReturn(ResponseEntity.ok(fakeGeminiResponse));
 
-        String result = aiService.explainText("explain photosynthesis");
+        String result = aiService.explainWithHistory(List.of(), "explain photosynthesis");
 
         assertEquals("Photosynthesis is how plants make food.", result);
     }
 
     @Test
-    void explainText_ApiError() {
+    void explainWithHistory_ApiError() {
         when(restTemplate.postForEntity(anyString(), any(HttpEntity.class), eq(Map.class)))
                 .thenThrow(new RestClientException("API unavailable"));
 
-        String result = aiService.explainText("explain photosynthesis");
+        String result = aiService.explainWithHistory(List.of(), "explain photosynthesis");
 
         assertEquals("The assistant is temporarily unavailable. Please try again shortly.", result);
     }

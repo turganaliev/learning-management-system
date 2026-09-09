@@ -51,6 +51,8 @@ public class ChatServiceImpl implements ChatService {
             }
         }
 
+        List<ChatMessage> history = chatMessageRepository.findByChatSessionOrderByTimestampAsc(chatSession);
+
         ChatMessage userMessage = new ChatMessage();
         userMessage.setContent(message);
         userMessage.setTimestamp(LocalDateTime.now());
@@ -58,7 +60,7 @@ public class ChatServiceImpl implements ChatService {
         userMessage.setChatSession(chatSession);
         chatMessageRepository.save(userMessage);
 
-        String aiResponseText = aiService.explainText(message);
+        String aiResponseText = aiService.explainWithHistory(history, message);
 
         ChatMessage aiMessage = new ChatMessage();
         aiMessage.setContent(aiResponseText);
