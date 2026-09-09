@@ -1,5 +1,7 @@
 package com.turganaliev.learning_management.service;
 
+import com.turganaliev.learning_management.model.ChatMessage;
+import com.turganaliev.learning_management.model.SenderType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -7,6 +9,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -22,20 +25,28 @@ public class AiService {
         this.restTemplate = restTemplate;
     }
 
-    public String explainText(String text) {
+    public String explainWithHistory(List<ChatMessage> history, String newMessage) {
         String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey;
 
-        Map<String, Object> requestBody = Map.of(
-                "contents", List.of(
-                        Map.of("parts", List.of(
-                                Map.of("text", text)
-                        ))
-                )
-        );
+        List<Map<String, Object>> contents = new ArrayList<>();
+
+        for (ChatMessage msg : history) {
+            String role = msg.getSender() == SenderType.USER ? "user" : "model";
+            contents.add(Map.of(
+                    "role", role,
+                    "parts", List.of(Map.of("text", msg.getContent()))
+            ));
+        }
+
+        contents.add(Map.of(
+                "role", "user",
+                "parts", List.of(Map.of("text", newMessage))
+        ));
+
+        Map<String, Object> requestBody = Map.of("contents", contents);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
 
         try {
